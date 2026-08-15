@@ -1,0 +1,38 @@
+---
+description: NestJS-tester med TestingModule, mocks och e2e
+alwaysApply: true
+---
+
+# NestJS — tester
+
+Skriv tester tillsammans med ny kod. Använd `@nestjs/testing` — inte manuella `new Controller()`.
+
+## Enhetstester (`*.spec.ts`)
+
+- `Test.createTestingModule`. Mocka beroenden med `{ provide, useValue }`.
+- Testa controller mot mockad service. Testa service mot mockade collaborators.
+- Hämta instanser med `module.get(Class)` efter `compile()`.
+
+```typescript
+// ❌
+const controller = new UsersController(new UsersService());
+
+// ✅
+const usersService = { create: jest.fn() };
+const module = await Test.createTestingModule({
+  controllers: [UsersController],
+  providers: [{ provide: UsersService, useValue: usersService }],
+}).compile();
+const controller = module.get(UsersController);
+```
+
+## e2e (`test/*.e2e-spec.ts`)
+
+- `NestFactory` via `Test.createTestingModule({ imports: [AppModule] }).createNestApplication()`.
+- Anropa HTTP med `supertest` mot `app.getHttpServer()`.
+- Spegla produktions-pipes/filters på appen i `beforeEach` (t.ex. `ValidationPipe`) så e2e beter sig som runtime.
+
+## Vad som inte är ett test
+
+- Ingen träff mot riktig databas i enhetstest. e2e får använda test-DB om projektet har en.
+- Asserta beteende och HTTP-kontrakt, inte implementationsdetaljer i NestJS-interner.

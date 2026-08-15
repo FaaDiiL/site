@@ -1,0 +1,53 @@
+---
+description: NestJS controllers, DTO, validering, felhantering, config och logging
+alwaysApply: true
+---
+
+# NestJS — HTTP och tjänster
+
+Controllers tar emot HTTP och delegerar. Services innehåller affärslogik. Använd NestJS inbyggda primitiv — inte Express-API:t direkt.
+
+## Controllers
+
+- Bara routing, statuskod och anrop till service. Ingen Prisma/SQL, ingen affärsregel.
+- DTO-klasser som `@Body()` / `@Query()` — aldrig `any` eller entity som request-typ.
+- Rätt verb: `@Get` `@Post` `@Patch` `@Put` `@Delete`. `@HttpCode` när NestJS default inte stämmer.
+
+```typescript
+// ❌
+@Post()
+create(@Body() body: any) {
+  return this.prisma.user.create({ data: body });
+}
+
+// ✅
+@Post()
+create(@Body() dto: CreateUserDto) {
+  return this.usersService.create(dto);
+}
+```
+
+## Validering
+
+Sätt global `ValidationPipe` i `main.ts` (`whitelist`, `forbidNonWhitelisted`, `transform`). DTO:er med `class-validator` / `class-transformer`. Separata create- och update-DTO:er.
+
+## Fel och svar
+
+Kasta NestJS-exceptions: `NotFoundException`, `BadRequestException`, `ConflictException`, `UnauthorizedException`. Inga råa `Error` i HTTP-flödet. Tvärgående felmappning hör hemma i exception filters.
+
+## Services, config, logg
+
+```typescript
+// ❌ process.env / console i service
+const port = process.env.PORT;
+console.log('created', id);
+
+// ✅
+constructor(private readonly config: ConfigService) {}
+private readonly logger = new Logger(UsersService.name);
+this.logger.log(`created ${id}`);
+```
+
+- Injicera `ConfigService` — läs inte `process.env` i feature-kod (bootstrap i `main.ts` är ok).
+- `Logger` från `@nestjs/common`, inte `console.*`.
+- Auth = guards. Tvärgående HTTP = interceptors. Transform/validering = pipes.

@@ -1,0 +1,46 @@
+---
+description: NestJS-arkitektur, moduler, namngivning och dependency injection
+alwaysApply: true
+---
+
+# NestJS — arkitektur
+
+Följ officiell NestJS-praxis (v11). Generera kod som om den kom från `nest g`. Lägg aldrig affärslogik i controllers eller `AppModule`.
+
+## Moduler
+
+- En feature-modul per domän (`users/`, `orders/`). `AppModule` importerar bara feature-moduler.
+- Registrera controllers i `controllers`, services i `providers`. Exportera bara det andra moduler behöver.
+- Undvik cirkulära beroenden. `forwardRef()` är sista utväg.
+- Konfigurerbara delade moduler: `forRoot` / `forRootAsync`.
+
+```typescript
+// ❌ AppModule växer med all logik
+@Module({ controllers: [UsersController, OrdersController], providers: [UsersService, OrdersService] })
+export class AppModule {}
+
+// ✅
+@Module({ imports: [UsersModule, OrdersModule] })
+export class AppModule {}
+```
+
+## Namngivning och filer
+
+```
+src/<feature>/
+  dto/create-<feature>.dto.ts
+  <feature>.controller.ts
+  <feature>.service.ts
+  <feature>.module.ts
+  <feature>.controller.spec.ts
+src/common/{filters,guards,interceptors,pipes,decorators}/
+```
+
+Klasser: `UsersController`, `UsersService`, `UsersModule`, `CreateUserDto`.
+
+## Dependency injection
+
+- Constructor injection, `private readonly`.
+- `@Injectable()` på providers. Injicera via typ eller injection token, aldrig `new Service()`.
+- Default scope är singleton. Request-scope bara när request-state krävs.
+- Dela logik via `common/` eller ett exporterat shared module — kopiera inte providers mellan features.
