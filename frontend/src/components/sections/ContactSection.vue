@@ -21,7 +21,7 @@ async function submit() {
     const res = await fetch(`${API_URL}/api/contact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form.value),
+      body: JSON.stringify(form.value),
     })
 
     if (!res.ok) throw new Error()
@@ -32,6 +32,10 @@ async function submit() {
     status.value = 'error'
     errorMsg.value = t('contact.error')
   }
+}
+
+function setBorder(event: Event, color: string) {
+  ;(event.target as HTMLElement).style.borderColor = color
 }
 
 const links = [
@@ -68,7 +72,6 @@ const links = [
     />
 
     <div class="relative z-10">
-      <!-- Heading -->
       <div class="reveal mb-4">
         <p class="text-sm font-semibold tracking-widest uppercase mb-2" style="color: var(--accent-mid)">
           08
@@ -82,126 +85,87 @@ const links = [
       </p>
 
       <div class="grid lg:grid-cols-2 gap-10 items-start">
-        <!-- Contact form -->
         <GlassCard tag="div" class="reveal reveal-delay-1">
-          <Transition name="fade" mode="out-in">
-            <!-- Success state -->
-            <div v-if="status === 'success'" class="py-8 text-center">
-              <div class="text-5xl mb-4">✅</div>
-              <h3 class="font-heading font-semibold text-xl mb-2" style="font-family: var(--font-heading); color: var(--text)">
-                {{ t('contact.success_title') }}
-              </h3>
-              <p style="color: var(--text-muted)">{{ t('contact.success_msg') }}</p>
+          <div v-if="status === 'success'" class="py-8 text-center">
+            <div class="text-5xl mb-4">✅</div>
+            <h3 class="font-heading font-semibold text-xl mb-2" style="font-family: var(--font-heading); color: var(--text)">
+              {{ t('contact.success_title') }}
+            </h3>
+            <p style="color: var(--text-muted)">{{ t('contact.success_msg') }}</p>
+            <button class="mt-6 btn-outline text-sm" @click="status = 'idle'">
+              {{ t('contact.send_another') }}
+            </button>
+          </div>
+
+          <form v-else @submit.prevent="submit" novalidate>
+            <div class="flex flex-col gap-5">
+              <div>
+                <label for="contact-name" class="block text-sm font-medium mb-1.5" style="color: var(--text)">
+                  {{ t('contact.field_name') }} *
+                </label>
+                <input
+                  id="contact-name"
+                  v-model="form.name"
+                  type="text"
+                  autocomplete="name"
+                  required
+                  :placeholder="t('contact.placeholder_name')"
+                  class="contact-input w-full px-4 py-3 rounded-xl text-sm outline-none"
+                  @focus="setBorder($event, 'var(--accent-mid)')"
+                  @blur="setBorder($event, 'var(--border)')"
+                />
+              </div>
+
+              <div>
+                <label for="contact-email" class="block text-sm font-medium mb-1.5" style="color: var(--text)">
+                  {{ t('contact.field_email') }} *
+                </label>
+                <input
+                  id="contact-email"
+                  v-model="form.email"
+                  type="email"
+                  autocomplete="email"
+                  required
+                  :placeholder="t('contact.placeholder_email')"
+                  class="contact-input w-full px-4 py-3 rounded-xl text-sm outline-none"
+                  @focus="setBorder($event, 'var(--accent-mid)')"
+                  @blur="setBorder($event, 'var(--border)')"
+                />
+              </div>
+
+              <div>
+                <label for="contact-message" class="block text-sm font-medium mb-1.5" style="color: var(--text)">
+                  {{ t('contact.field_message') }} *
+                </label>
+                <textarea
+                  id="contact-message"
+                  v-model="form.message"
+                  rows="5"
+                  required
+                  :placeholder="t('contact.placeholder_message')"
+                  class="contact-input w-full px-4 py-3 rounded-xl text-sm outline-none resize-none"
+                  @focus="setBorder($event, 'var(--accent-mid)')"
+                  @blur="setBorder($event, 'var(--border)')"
+                />
+              </div>
+
+              <p v-if="status === 'error'" class="text-sm" style="color: #ef4444" role="alert">
+                {{ errorMsg }}
+              </p>
+
               <button
-                class="mt-6 btn-outline text-sm"
-                @click="status = 'idle'"
+                type="submit"
+                class="btn-gradient justify-center"
+                :disabled="status === 'loading'"
+                :aria-busy="status === 'loading'"
               >
-                {{ t('contact.send_another') }}
+                <span v-if="status === 'loading'">{{ t('contact.sending') }}…</span>
+                <span v-else>{{ t('contact.cta') }} ✉️</span>
               </button>
             </div>
-
-            <!-- Form -->
-            <form v-else @submit.prevent="submit" novalidate>
-              <div class="flex flex-col gap-5">
-                <!-- Name -->
-                <div>
-                  <label
-                    for="contact-name"
-                    class="block text-sm font-medium mb-1.5"
-                    style="color: var(--text)"
-                  >
-                    {{ t('contact.field_name') }} *
-                  </label>
-                  <input
-                    id="contact-name"
-                    v-model="form.name"
-                    type="text"
-                    autocomplete="name"
-                    required
-                    :placeholder="t('contact.placeholder_name')"
-                    class="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all duration-200"
-                    style="
-                      background: var(--surface);
-                      border: 1px solid var(--border);
-                      color: var(--text);
-                    "
-                    :style="{ '--tw-ring-color': 'var(--accent-start)' }"
-                    @focus="($event.target as HTMLElement).style.borderColor = 'var(--accent-mid)'"
-                    @blur="($event.target as HTMLElement).style.borderColor = 'var(--border)'"
-                  />
-                </div>
-
-                <!-- Email -->
-                <div>
-                  <label
-                    for="contact-email"
-                    class="block text-sm font-medium mb-1.5"
-                    style="color: var(--text)"
-                  >
-                    {{ t('contact.field_email') }} *
-                  </label>
-                  <input
-                    id="contact-email"
-                    v-model="form.email"
-                    type="email"
-                    autocomplete="email"
-                    required
-                    :placeholder="t('contact.placeholder_email')"
-                    class="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all duration-200"
-                    style="background: var(--surface); border: 1px solid var(--border); color: var(--text)"
-                    @focus="($event.target as HTMLElement).style.borderColor = 'var(--accent-mid)'"
-                    @blur="($event.target as HTMLElement).style.borderColor = 'var(--border)'"
-                  />
-                </div>
-
-                <!-- Message -->
-                <div>
-                  <label
-                    for="contact-message"
-                    class="block text-sm font-medium mb-1.5"
-                    style="color: var(--text)"
-                  >
-                    {{ t('contact.field_message') }} *
-                  </label>
-                  <textarea
-                    id="contact-message"
-                    v-model="form.message"
-                    rows="5"
-                    required
-                    :placeholder="t('contact.placeholder_message')"
-                    class="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all duration-200 resize-none"
-                    style="background: var(--surface); border: 1px solid var(--border); color: var(--text)"
-                    @focus="($event.target as HTMLElement).style.borderColor = 'var(--accent-mid)'"
-                    @blur="($event.target as HTMLElement).style.borderColor = 'var(--border)'"
-                  />
-                </div>
-
-                <!-- Error -->
-                <p
-                  v-if="status === 'error'"
-                  class="text-sm"
-                  style="color: #ef4444"
-                  role="alert"
-                >
-                  {{ errorMsg }}
-                </p>
-
-                <!-- Submit -->
-                <button
-                  type="submit"
-                  class="btn-gradient justify-center"
-                  :disabled="status === 'loading'"
-                  :aria-busy="status === 'loading'"
-                >
-                  <span v-if="status === 'loading'">{{ t('contact.sending') }}…</span>
-                  <span v-else>{{ t('contact.cta') }} ✉️</span>
-                </button>
-              </div>
-            </form>
-          </Transition>
+          </form>
         </GlassCard>
 
-        <!-- Links -->
         <div class="reveal reveal-delay-2 flex flex-col gap-4">
           <a
             v-for="link in links"
@@ -230,17 +194,14 @@ const links = [
 </template>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.25s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+.contact-input {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: border-color 0.2s ease;
 }
 
-input::placeholder,
-textarea::placeholder {
+.contact-input::placeholder {
   color: var(--text-muted);
   opacity: 0.6;
 }

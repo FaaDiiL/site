@@ -1,7 +1,8 @@
 <script setup lang="ts">
+defineOptions({ inheritAttrs: false })
+
 defineProps<{
   tag?: string
-  class?: string
 }>()
 </script>
 
