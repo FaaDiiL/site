@@ -16,7 +16,7 @@ export default {
   },
   about: {
     title: 'Om mig',
-    bio: 'Med över 10 års erfarenhet inom full-stack-utveckling bygger jag system som team kan skala, underhålla och växa på i åratal. Som CTO på Kaptena leder jag teknisk arkitektur inom fintech — med fokus på rena lösningar, AI-drivna arbetsflöden och infrastruktur i molnet.',
+    bio: 'Med över 10 års erfarenhet inom full-stack-utveckling bygger jag system som team kan skala, underhålla och växa på i åratal. Som CTO på Kaptena leder jag teknisk arkitektur inom fintech, med fokus på rena lösningar, AI-drivna arbetsflöden och infrastruktur i molnet.',
     focus_title: 'Nuvarande fokus',
     focus: [
       'AI-assisterade utvecklingsflöden',
@@ -52,7 +52,7 @@ export default {
         role: 'CTO & Tech Lead',
         company: 'Kaptena Sverige AB',
         period: '2022 – Nuvarande',
-        description: 'Leder teknisk arkitektur och produktutveckling på Kaptena — navet i det onoterade ekosystemet. Bygger och driftar digitala plattformar (Kapclear & Kapsure) som gör det enklare att äga, förvalta och investera i onoterade bolag.',
+        description: 'Leder teknisk arkitektur och produktutveckling på Kaptena, navet i det onoterade ekosystemet. Bygger och driftar digitala plattformar (Kapclear & Kapsure) som gör det enklare att äga, förvalta och investera i onoterade bolag.',
         tags: ['Vue 3', 'TypeScript', 'NestJS', 'AWS', 'Docker', 'Fintech'],
       },
       {

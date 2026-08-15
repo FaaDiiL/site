@@ -16,7 +16,7 @@ export default {
   },
   about: {
     title: 'About me',
-    bio: 'With over 10 years of full-stack experience, I build systems that teams can scale, maintain, and grow on for years. As CTO at Kaptena I lead technical architecture in the fintech space — focusing on clean solutions, AI-driven workflows, and cloud infrastructure.',
+    bio: 'With over 10 years of full-stack experience, I build systems that teams can scale, maintain, and grow on for years. As CTO at Kaptena I lead technical architecture in the fintech space, focusing on clean solutions, AI-driven workflows, and cloud infrastructure.',
     focus_title: 'Current focus',
     focus: [
       'AI-assisted development workflows',
