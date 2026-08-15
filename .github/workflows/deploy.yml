@@ -26,13 +26,19 @@ jobs:
 
       - name: Build frontend
         working-directory: frontend
+        env:
+          PNPM_MINIMUM_RELEASE_AGE: '0'
         run: |
+          pnpm config set minimum-release-age 0
           pnpm install --frozen-lockfile
           pnpm run build-only
 
       - name: Build server
         working-directory: server
+        env:
+          PNPM_MINIMUM_RELEASE_AGE: '0'
         run: |
+          pnpm config set minimum-release-age 0
           pnpm install --frozen-lockfile
           pnpm run build
 
