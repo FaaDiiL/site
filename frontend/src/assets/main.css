@@ -1,0 +1,251 @@
+@import "tailwindcss";
+
+/* ── Design tokens ─────────────────────────────────────────────────── */
+:root {
+  /* Colors */
+  --accent-start: #00d4ff;
+  --accent-end: #0066ff;
+  --accent-mid: #0099e6;
+
+  /* Light theme */
+  --bg: #f0f4ff;
+  --bg-2: #e4ecff;
+  --surface: rgba(255, 255, 255, 0.65);
+  --surface-hover: rgba(255, 255, 255, 0.8);
+  --border: rgba(0, 102, 255, 0.12);
+  --border-strong: rgba(0, 153, 230, 0.25);
+  --text: #0a0f1e;
+  --text-muted: #4a5568;
+  --shadow: 0 8px 32px rgba(0, 102, 255, 0.08);
+  --shadow-hover: 0 16px 48px rgba(0, 102, 255, 0.15);
+
+  /* Blur */
+  --blur: blur(20px);
+
+  /* Spacing */
+  --section-py: clamp(5rem, 10vw, 8rem);
+
+  /* Typography */
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Space Grotesk', system-ui, sans-serif;
+}
+
+[data-theme='dark'] {
+  --bg: #050a14;
+  --bg-2: #080f1f;
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.09);
+  --border: rgba(0, 212, 255, 0.1);
+  --border-strong: rgba(0, 212, 255, 0.2);
+  --text: #e8eeff;
+  --text-muted: #8899bb;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 16px 48px rgba(0, 212, 255, 0.08);
+}
+
+/* ── Base ───────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+/* ── Skip link ──────────────────────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0 0 0.5rem 0.5rem;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* ── Gradient text ──────────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glass card ─────────────────────────────────────────────────────── */
+.glass {
+  background: var(--surface);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+.glass:hover {
+  background: var(--surface-hover);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--border-strong);
+}
+
+/* ── Gradient button ────────────────────────────────────────────────── */
+.btn-gradient {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+  color: #fff;
+  font-family: var(--font-body);
+  font-weight: 600;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.btn-gradient:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 153, 230, 0.35);
+}
+.btn-gradient:focus-visible {
+  outline: 2px solid var(--accent-start);
+  outline-offset: 3px;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 600;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+.btn-outline:hover {
+  border-color: var(--accent-mid);
+  background: var(--surface);
+  transform: translateY(-2px);
+}
+.btn-outline:focus-visible {
+  outline: 2px solid var(--accent-start);
+  outline-offset: 3px;
+}
+
+/* ── Focus visible ──────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent-start);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Scroll reveal ──────────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.65s ease,
+    transform 0.65s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ── Background blobs ───────────────────────────────────────────────── */
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.35;
+}
+[data-theme='dark'] .bg-blob {
+  opacity: 0.2;
+}
+
+/* ── Headings ───────────────────────────────────────────────────────── */
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  line-height: 1.15;
+  color: var(--text);
+}
+
+/* ── Section spacing ────────────────────────────────────────────────── */
+.section-wrapper {
+  padding-block: var(--section-py);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Timeline ───────────────────────────────────────────────────────── */
+.timeline-line {
+  position: absolute;
+  left: 1.25rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent-start), var(--accent-end));
+  opacity: 0.4;
+}
+
+.timeline-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px rgba(0, 212, 255, 0.3);
+}

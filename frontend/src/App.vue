@@ -1,11 +1,20 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import AppHeader from '@/components/layout/AppHeader.vue'
+import AppFooter from '@/components/layout/AppFooter.vue'
+
+const { locale } = useI18n()
+
+watch(locale, (lang) => {
+  document.documentElement.lang = lang
+}, { immediate: true })
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div style="min-height: 100vh; display: flex; flex-direction: column">
+    <AppHeader />
+    <RouterView style="flex: 1" />
+    <AppFooter />
+  </div>
 </template>
-
-<style scoped></style>
