@@ -40,4 +40,4 @@ jobs:
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          git push --force https://heroku:$HEROKU_API_KEY@git.heroku.com/alfarhan.git HEAD:main
+          git push --force https://:$HEROKU_API_KEY@git.heroku.com/alfarhan.git HEAD:main
