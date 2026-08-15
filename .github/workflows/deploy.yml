@@ -5,47 +5,121 @@ on:
     branches: [main]
 
 jobs:
-  deploy:
+  changes:
     runs-on: ubuntu-latest
-
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      server: ${{ steps.filter.outputs.server }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
         with:
-          fetch-depth: 0
+          filters: |
+            frontend:
+              - 'frontend/**'
+            server:
+              - 'server/**'
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+  build-frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: '24'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: latest
 
-      - name: Build frontend
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: frontend-deps-${{ hashFiles('frontend/pnpm-lock.yaml') }}
+
+      - name: Install & build
         working-directory: frontend
         run: |
+          pnpm config set minimum-release-age 0
           pnpm install --frozen-lockfile
           pnpm run build-only
 
-      - name: Build server
+      - name: Upload frontend dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 1
+
+  build-server:
+    needs: changes
+    if: needs.changes.outputs.server == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: server/node_modules
+          key: server-deps-${{ hashFiles('server/pnpm-lock.yaml') }}
+
+      - name: Install & build
         working-directory: server
         run: |
+          pnpm config set minimum-release-age 0
           pnpm install --frozen-lockfile
           pnpm run build
 
-      - name: Install Heroku CLI
-        run: curl https://cli-assets.heroku.com/install.sh | sh
+      - name: Upload server dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-dist
+          path: server/dist
+          retention-days: 1
 
-      - name: Deploy to Heroku
+  deploy:
+    needs: [changes, build-frontend, build-server]
+    if: always() && !failure() && !cancelled()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download frontend dist (if rebuilt)
+        if: needs.changes.outputs.frontend == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - name: Download server dist (if rebuilt)
+        if: needs.changes.outputs.server == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: server-dist
+          path: server/dist
+
+      - name: Commit built files and push to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          if [ -z "$HEROKU_API_KEY" ]; then
-            echo "Secret HEROKU_API_KEY saknas i GitHub. Lägg till den under Settings → Secrets and variables → Actions." >&2
-            exit 1
-          fi
-          heroku git:remote -a alfarhan
-          git push --force heroku HEAD:main
+          git config user.email "ci@github-actions"
+          git config user.name "GitHub Actions"
+          git add -f frontend/dist server/dist
+          git diff --staged --quiet || git commit -m "chore: deploy build [skip ci]"
+          git push --force https://:$HEROKU_API_KEY@git.heroku.com/alfarhan.git HEAD:main
