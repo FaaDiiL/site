@@ -127,7 +127,6 @@ export default {
     error: 'Something went wrong. Please try again or reach out via email.',
   },
   footer: {
-    built: 'Built with',
     rights: 'All rights reserved.',
   },
   accessibility: {

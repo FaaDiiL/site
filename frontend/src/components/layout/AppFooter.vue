@@ -21,7 +21,6 @@ function toggleLang() {
         © {{ year }} Fadil Al Farhan · {{ t('footer.rights') }}
       </p>
       <div class="flex items-center gap-4">
-        <span>{{ t('footer.built') }} Vue 3 + Vite</span>
         <button
           class="underline hover:opacity-70 transition-opacity duration-200 bg-transparent border-none cursor-pointer text-sm"
           style="color: var(--text-muted)"

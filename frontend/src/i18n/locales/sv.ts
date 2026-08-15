@@ -127,7 +127,6 @@ export default {
     error: 'Något gick fel. Försök igen eller kontakta mig via email.',
   },
   footer: {
-    built: 'Byggt med',
     rights: 'Alla rättigheter förbehållna.',
   },
   accessibility: {
