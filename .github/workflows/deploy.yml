@@ -36,8 +36,16 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm run build
 
+      - name: Install Heroku CLI
+        run: curl https://cli-assets.heroku.com/install.sh | sh
+
       - name: Deploy to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         run: |
-          git push --force https://:$HEROKU_API_KEY@git.heroku.com/alfarhan.git HEAD:main
+          if [ -z "$HEROKU_API_KEY" ]; then
+            echo "Secret HEROKU_API_KEY saknas i GitHub. Lägg till den under Settings → Secrets and variables → Actions." >&2
+            exit 1
+          fi
+          heroku git:remote -a alfarhan
+          git push --force heroku HEAD:main
