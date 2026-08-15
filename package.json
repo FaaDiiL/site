@@ -2,14 +2,16 @@
   "name": "alfarhan-site",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@11.22.0",
   "engines": {
     "node": ">=24.0.0"
   },
   "scripts": {
-    "build": "npm run build:frontend && npm run build:server",
-    "build:frontend": "cd frontend && npm install -g pnpm && pnpm install && pnpm run build-only",
-    "build:server": "cd server && pnpm install && pnpm run build",
+    "build": "turbo run build",
     "start": "node server/dist/main.js",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "pnpm install --frozen-lockfile && turbo run build"
+  },
+  "devDependencies": {
+    "turbo": "^2.10.10"
   }
 }

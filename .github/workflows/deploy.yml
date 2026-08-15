@@ -5,114 +5,44 @@ on:
     branches: [main]
 
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      frontend: ${{ steps.filter.outputs.frontend }}
-      server: ${{ steps.filter.outputs.server }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            frontend:
-              - 'frontend/**'
-            server:
-              - 'server/**'
-
-  build-frontend:
-    needs: changes
-    if: needs.changes.outputs.frontend == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: latest
-
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: frontend/node_modules
-          key: frontend-deps-${{ hashFiles('frontend/pnpm-lock.yaml') }}
-
-      - name: Install & build
-        working-directory: frontend
-        run: |
-          pnpm config set minimum-release-age 0
-          pnpm install --frozen-lockfile
-          pnpm run build-only
-
-      - name: Upload frontend dist
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: frontend/dist
-          retention-days: 1
-
-  build-server:
-    needs: changes
-    if: needs.changes.outputs.server == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: latest
-
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: server/node_modules
-          key: server-deps-${{ hashFiles('server/pnpm-lock.yaml') }}
-
-      - name: Install & build
-        working-directory: server
-        run: |
-          pnpm config set minimum-release-age 0
-          pnpm install --frozen-lockfile
-          pnpm run build
-
-      - name: Upload server dist
-        uses: actions/upload-artifact@v4
-        with:
-          name: server-dist
-          path: server/dist
-          retention-days: 1
-
-  deploy:
-    needs: [changes, build-frontend, build-server]
-    if: always() && !failure() && !cancelled()
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Download frontend dist (if rebuilt)
-        if: needs.changes.outputs.frontend == 'true'
-        uses: actions/download-artifact@v4
+      - uses: actions/setup-node@v4
         with:
-          name: frontend-dist
-          path: frontend/dist
+          node-version: '24'
 
-      - name: Download server dist (if rebuilt)
-        if: needs.changes.outputs.server == 'true'
-        uses: actions/download-artifact@v4
+      - uses: pnpm/action-setup@v4
         with:
-          name: server-dist
-          path: server/dist
+          version: latest
+
+      - name: Cache turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.sha }}
+          restore-keys: turbo-
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            frontend/node_modules
+            server/node_modules
+          key: deps-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        run: |
+          pnpm config set minimum-release-age 0
+          pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
 
       - name: Commit built files and push to Heroku
         env:
