@@ -39,7 +39,6 @@ jobs:
           PNPM_MINIMUM_RELEASE_AGE: '0'
         run: |
           pnpm config set minimum-release-age 0
-          echo 'only-built-dependencies[]=unrs-resolver' >> .npmrc
           pnpm install --frozen-lockfile
           pnpm run build
 
