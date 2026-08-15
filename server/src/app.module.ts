@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { MongooseModule } from '@nestjs/mongoose'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { AppController } from './app.controller'
@@ -9,11 +9,21 @@ import { ContactModule } from './contact/contact.module'
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ envFilePath: '.env.local', isGlobal: true }),
-    MongooseModule.forRoot(process.env.MONGODB_URI ?? 'mongodb://localhost:27017/site'),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
+    }),
+    MongooseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        uri: config.getOrThrow<string>('MONGODB_URI'),
+        // Atlas-URI utan databasnamn landar annars i `test`, där användaren saknar write.
+        dbName: config.get<string>('MONGODB_DB') ?? 'site',
+      }),
+    }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'frontend', 'dist'),
-      exclude: ['/api/(.*)'],
+      exclude: ['/api/{*path}'],
     }),
     ContactModule,
   ],
